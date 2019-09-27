@@ -17,17 +17,21 @@ let graph: G6.TreeGraph;
 
 class Display extends React.Component<FormComponentProps, {
   context: RuleContext | null;
+  ruleNames: string[];
 }> {
   readonly state = {
-    context: null
+    context: null,
+    ruleNames: [],
   }
 
   handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
+        const { parser, context } = parse(values.text, MySqlLexer, MySqlParser, 'sqlStatement');
         this.setState({
-          context: parse(values.text, MySqlLexer, MySqlParser, 'sqlStatement'),
+          context,
+          ruleNames: parser.ruleNames,
         });
       }
     });
@@ -96,7 +100,11 @@ class Display extends React.Component<FormComponentProps, {
           </Button>
         </Form.Item>
       </Form>
-      <TreeGraph context={this.state.context} onGraphCreated={this.handleGraphCreatd}/>
+      <TreeGraph
+        context={this.state.context}
+        ruleNames={this.state.ruleNames}
+        onGraphCreated={this.handleGraphCreatd}
+      />
     </>
     );
   }

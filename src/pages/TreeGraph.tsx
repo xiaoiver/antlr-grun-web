@@ -7,6 +7,7 @@ let graph: G6.TreeGraph;
 
 class TreeGraph extends React.Component<{
   context: RuleContext | null;
+  ruleNames: string[];
   onGraphCreated:(graph: G6.TreeGraph) => void;
 }> {
   public componentDidMount() {
@@ -70,11 +71,7 @@ class TreeGraph extends React.Component<{
   }
 
   private getContextLabel(rule: RuleContext): string {
-    const constructorName = rule.constructor.name;
-    if (constructorName === 'TerminalNode') {
-      return rule.text;
-    }
-    return constructorName;
+    return this.props.ruleNames[rule.ruleIndex] || rule.text;
   }
 }
 

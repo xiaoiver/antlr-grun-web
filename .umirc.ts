@@ -3,6 +3,7 @@ import { IConfig } from 'umi-types';
 // ref: https://umijs.org/config/
 const config: IConfig =  {
   outputPath: './docs',
+  base: '/antlr-grun-web/',
   publicPath: '/antlr-grun-web/',
   treeShaking: true,
   plugins: [

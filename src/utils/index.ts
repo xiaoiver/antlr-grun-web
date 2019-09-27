@@ -21,12 +21,15 @@ export function parse(
   LexerClazz: (new (...args: any[]) => Lexer),
   ParserClazz: (new (...args: any[]) => Parser),
   entry: string,
-): RuleContext {
+): { context: RuleContext; parser: Parser } {
   const chars = new CaseInsensitiveStream(input);
   const lexer = new LexerClazz(chars);
   const tokens = new CommonTokenStream(lexer);
   const parser = new ParserClazz(tokens);
 
-  // @ts-ignore
-  return parser[entry]();
+  return {
+    // @ts-ignore
+    context: parser[entry](),
+    parser,
+  };
 }
