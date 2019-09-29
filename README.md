@@ -1,6 +1,6 @@
 # antlr-grun-web
-Display parse tree visually in web browser just like Antlr grun.
-![](./screenshot/screenshot.png)
+Display parse tree visually in web browser just like Antlr grun.[Online Demo](https://xiaoiver.github.io/antlr-grun-web).
+![](./screenshots/homepage.png)
 
 Usually we use Antlr [grun](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md) to display a parse tree. But when I try to implements a web editor with SQL formmating function, I found the following drawbacks:
 * I've already generated the JS runtime code for my Lexer and Parser used in my web editor, but grun only supports the Java version. So I have to regenerate runtime code for Java target.
@@ -27,7 +27,31 @@ Start a dev-server
 yarn start
 ```
 
-Compiling MySQL grammar using [antlr4ts](https://github.com/tunnelvisionlabs/antlr4ts)
+## Support other languages
+
+Compiling MySQL grammar using [antlr4ts](https://github.com/tunnelvisionlabs/antlr4ts):
 ```
 yarn antlr4ts
+```
+
+Then add this language in config:
+```typescript
+// src/languages/index.ts
+import { MySqlLexer } from './mysql/MySqlLexer';
+import { MySqlParser } from './mysql/MySqlParser';
+
+const languages: ILanguage[] = [
+  {
+    /**
+     * display name in Select component
+     */
+    displayName: 'MySQL',
+    lexer: MySqlLexer,
+    parser: MySqlParser,
+    /**
+     * entry rule defined in parser
+     */
+    entry: 'sqlStatement',
+  },
+];
 ```

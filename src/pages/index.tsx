@@ -1,11 +1,10 @@
 import React from 'react';
-import { Input, Button, Form, Select } from 'antd';
+import { Input, Button, Form, Select, message } from 'antd';
 import { FormComponentProps } from 'antd/lib/form';
 // @ts-ignore
 import G6 from '@antv/g6';
-import { MySqlLexer } from '@/languages/MySqlLexer';
-import { MySqlParser } from '@/languages/MySqlParser';
 import { RuleContext } from 'antlr4ts';
+import languages, { ILanguage } from '@/languages';
 import TreeGraph from './TreeGraph';
 import { parse } from '../utils';
 import styles from './index.css';
@@ -13,6 +12,7 @@ import styles from './index.css';
 const { TextArea } = Input;
 const { Option } = Select;
 
+const defaultLanguage = languages[0];
 let graph: G6.TreeGraph;
 
 class Display extends React.Component<FormComponentProps, {
@@ -28,11 +28,20 @@ class Display extends React.Component<FormComponentProps, {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        const { parser, context } = parse(values.text, MySqlLexer, MySqlParser, 'sqlStatement');
-        this.setState({
-          context,
-          ruleNames: parser.ruleNames,
-        });
+        const targetLanguage = languages.find((l: ILanguage) => l.displayName === values.language);
+        if (targetLanguage) {
+          const { lexer: lexerClazz, parser: parserClazz, entry } = targetLanguage;
+
+          try {
+            const { parser, context } = parse(values.text, lexerClazz, parserClazz, values.entry || entry);
+            this.setState({
+              context,
+              ruleNames: parser.ruleNames,
+            });
+          } catch (e) {
+            message.error(e.message);
+          }
+        }
       }
     });
   }
@@ -79,12 +88,17 @@ class Display extends React.Component<FormComponentProps, {
       <Form {...formItemLayout} className={styles.form} onSubmit={this.handleSubmit}>
         <Form.Item label="Choose language">
           {getFieldDecorator('language', {
-            initialValue: 'MySQL'
+            initialValue: defaultLanguage.displayName,
           })(
             <Select>
-              <Option value="MySQL">MySQL</Option>
+              {languages.map(l => <Option key={l.displayName} value={l.displayName}>{l.displayName}</Option>)}
             </Select>
           )}
+        </Form.Item>
+        <Form.Item label="Entry rule">
+          {getFieldDecorator('entry', {
+            initialValue: defaultLanguage.entry,
+          })(<Input />)}
         </Form.Item>
         <Form.Item label="Raw text">
           {getFieldDecorator('text', {

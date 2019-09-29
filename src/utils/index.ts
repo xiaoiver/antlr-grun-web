@@ -27,6 +27,11 @@ export function parse(
   const tokens = new CommonTokenStream(lexer);
   const parser = new ParserClazz(tokens);
 
+  // @ts-ignore
+  if (!parser[entry]) {
+    throw new Error('Unknown rule in parser.');
+  }
+
   return {
     // @ts-ignore
     context: parser[entry](),
